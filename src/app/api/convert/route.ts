@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getOrCreateUser, createScript, updateScript, decrementCredits, logUsage } from "@/lib/db";
 import { getVideoTranscript } from "@/lib/youtube";
 import { generateScreenplay } from "@/lib/screenplay";
+import { extractVideoFrames, FrameData } from "@/lib/video";
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,11 +52,30 @@ export async function POST(request: NextRequest) {
         transcript: videoInfo.fullText,
       });
 
-      // Generate screenplay
+      // Extract video frames for visual analysis
+      let frames: FrameData[] = [];
+      try {
+        const extraction = await extractVideoFrames(
+          videoInfo.videoId,
+          videoInfo.durationSeconds
+        );
+        frames = extraction.frames;
+        // Schedule cleanup of temp files (non-blocking)
+        extraction.cleanup().catch(() => {});
+      } catch (frameErr) {
+        // Video analysis is best-effort — fall back to transcript-only
+        console.warn(
+          "Video frame extraction failed, falling back to transcript-only:",
+          frameErr instanceof Error ? frameErr.message : frameErr
+        );
+      }
+
+      // Generate screenplay (with frames if available, transcript-only otherwise)
       const screenplay = await generateScreenplay(
         videoInfo.fullText,
         videoInfo.title,
-        videoInfo.durationSeconds
+        videoInfo.durationSeconds,
+        frames
       );
 
       // Deduct credit
