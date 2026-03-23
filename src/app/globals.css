@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --card: #141414;
+    --card-hover: #1a1a1a;
+    --border: #2a2a2a;
+    --primary: #f59e0b;
+    --primary-hover: #d97706;
+    --muted: #737373;
+    --accent: #1c1917;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Screenplay formatting */
+.screenplay {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  color: #e5e5e5;
+}
+
+@media print {
+  .screenplay {
+    background: white;
+    color: black;
+    font-size: 12pt;
+    max-width: none;
+    padding: 1in;
+  }
+}
